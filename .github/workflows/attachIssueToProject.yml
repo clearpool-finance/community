@@ -76,16 +76,18 @@ jobs:
               }
             }' -f projectItemId=$CONTENT_ID > project_item.json
 
-          echo 'ITEM_TYPE='$(jq '.data.node | .type' project_item.json) >> $GITHUB_ENV
-          
-          if [ $ITEM_TYPE == 'PULL_REQUEST' ]; then 
-            echo 'STATUS_FIELD_OPTION_ID='$STATUS_FIELD_OPTION_INPROGRESS_ID >> $GITHUB_ENV 
-          else 
-            echo 'STATUS_FIELD_OPTION_ID='$STATUS_FIELD_OPTION_BACKLOG_ID >> $GITHUB_ENV
-          fi
+          echo 'ITEM_TYPE='$(jq '.data.node.type' project_item.json) | xargs >> $GITHUB_ENV
+          echo 'EXCEPTED_VAL='"PULL_REQUEST" >> $GITHUB_ENV
         env:
           CONTENT_ID: ${{ steps.add-project.outputs.itemId }}
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+      - name: 'Set correct status'
+        run: |
+          if [[ "$ITEM_TYPE" == "$EXCEPTED_VAL" ]]; then 
+            echo 'STATUS_FIELD_OPTION_ID='$STATUS_FIELD_OPTION_INPROGRESS_ID >> $GITHUB_ENV
+          else 
+            echo 'STATUS_FIELD_OPTION_ID='$STATUS_FIELD_OPTION_BACKLOG_ID >> $GITHUB_ENV
+          fi
       - name: 'Set fields'
         run: |
           gh api graphql -f query='
