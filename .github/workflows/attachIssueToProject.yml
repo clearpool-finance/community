@@ -77,13 +77,12 @@ jobs:
             }' -f projectItemId=$CONTENT_ID > project_item.json
 
           echo 'ITEM_TYPE='$(jq '.data.node | .type' project_item.json) >> $GITHUB_ENV
-          echo 'STATUS_FIELD_OPTION_ID='$STATUS_FIELD_OPTION_INPROGRESS_ID >> $GITHUB_ENV
           
-          # if [ $ITEM_TYPE == 'PULL_REQUEST' ]; then 
-          #   echo 'STATUS_FIELD_OPTION_ID='$STATUS_FIELD_OPTION_INPROGRESS_ID >> $GITHUB_ENV 
-          # else 
-          #   echo 'STATUS_FIELD_OPTION_ID='$STATUS_FIELD_OPTION_BACKLOG_ID >> $GITHUB_ENV
-          # fi
+          if [ $ITEM_TYPE == 'PULL_REQUEST' ]; then 
+            echo 'STATUS_FIELD_OPTION_ID='$STATUS_FIELD_OPTION_INPROGRESS_ID >> $GITHUB_ENV 
+          else 
+            echo 'STATUS_FIELD_OPTION_ID='$STATUS_FIELD_OPTION_BACKLOG_ID >> $GITHUB_ENV
+          fi
         env:
           CONTENT_ID: ${{ steps.add-project.outputs.itemId }}
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
